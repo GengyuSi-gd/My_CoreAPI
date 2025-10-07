@@ -112,7 +112,7 @@ namespace My_CoreAPI.RabbitMQ
                 QueueBind = new QueueBind
                 {
                     QueueName = settings.RequestHandlerAllQueueName,
-                    Exchange = settings.QueueName,
+                    Exchange = settings.ExchangeName,
                     RoutingKey = settings.RoutingKey
                 };
                 return this;

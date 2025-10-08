@@ -1,3 +1,4 @@
+using Common.Message.Request;
 using Microsoft.AspNetCore.Mvc;
 using My_CoreAPI.Providers;
 
@@ -26,7 +27,20 @@ namespace My_CoreAPI.Controllers
         {
             _logger.LogInformation("Generating weather forecast data.");
 
-            var response = _requestHandlerService.GetWeatherInfo("abc");
+            BaseRequest r = new BaseRequest()
+            {
+                ReqeustHeader = new ReqeustHeader()
+                {
+                    RequestId = Guid.NewGuid(),
+                    Options = new Dictionary<string, string>
+                    {
+                        { "Client", "MyCoreAPI" },
+                        { "RequestType", "GetWeatherInfo" }
+                    }
+                }
+            };
+
+            var response =_requestHandlerService.GetWeatherInfo(r).GetAwaiter().GetResult();
 
             _logger.LogInformation("Weather forecast data generated successfully.");
 
@@ -34,7 +48,8 @@ namespace My_CoreAPI.Controllers
             {
                 Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
                 TemperatureC = Random.Shared.Next(-20, 55),
-                Summary = Summaries[Random.Shared.Next(Summaries.Length)]
+                Summary = //Summaries[Random.Shared.Next(Summaries.Length)]
+                response.ResponseHeader.Message
             })
             .ToArray();
         }

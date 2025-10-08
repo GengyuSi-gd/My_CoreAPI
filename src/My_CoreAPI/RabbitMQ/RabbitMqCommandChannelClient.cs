@@ -145,7 +145,7 @@ namespace My_CoreAPI.RabbitMQ
         [ExcludeFromCodeCoverage(Justification = "RabbitMq Connection")]
         public class RabbitMqCommandChannelClient : ICommandChannelClient
         {
-            public RabbitMqCommandChannelClient(ILogger<RabbitMqCommandChannelClient> logger, CoreAPISettings settings)
+            public RabbitMqCommandChannelClient(ILogger<RabbitMqCommandChannelClient> logger, CoreAPISettings settings, RabbitMQSettings rbMqSettings)
             {
                 _logger = logger;
             

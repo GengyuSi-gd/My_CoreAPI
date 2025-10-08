@@ -1,5 +1,5 @@
 {
-  "ApplicationName": "My_CoreAPI",
+  "ApplicationName": "My_RequestHandler",
   "Logging": {
     "LogLevel": {
       "Default": "Information",
@@ -8,7 +8,7 @@
   },
   "AllowedHosts": "*",
   "ConnectionStrings": {
-    "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=My_CoreAPI_DB;Trusted_Connection=True;MultipleActiveResultSets=true"
+    "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=My_RequestHandler_DB;Trusted_Connection=True;MultipleActiveResultSets=true"
   },
   "RabbitMQSettings": {
     "HostName": "localhost",
@@ -19,7 +19,7 @@
     "Password": "guest",
     "VirtualHost": "/",
     "ExchangeName": "my_exchange",
-    //"QueueName": "my_request-handler_queue",
+    "QueueName": "my_request-handler_queue",
     "RabbitMQResponseQueueName": null,
     "RoutingKey": "*",
     "ExchangeType": "topic",
@@ -28,6 +28,7 @@
     "RequestHandlerAllQueueName": "request-handler-all",
     "DurableRequestHandlerAllQueueName": false,
     "AutoDeleteRequestHandlerAllQueueName": false,
-    "ExclusiveRequestHandlerAllQueueName": false
+    "ExclusiveRequestHandlerAllQueueName": false,
+    "MaxExecutingCommands": 30
   }
 }

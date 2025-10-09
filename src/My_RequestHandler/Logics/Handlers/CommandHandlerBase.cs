@@ -24,7 +24,6 @@ namespace My_RequestHandler.Logics.Handlers
         public async Task<byte[]> HandleAsync(byte[] requestBuffer)
         {
             //var serializer = new JsonSerializer();
-            var correlationId = BitConverter.ToInt64(Guid.NewGuid().ToByteArray(), 0);
             string requestId;
             byte[] responseBuffer;
             BaseResponse response = null; // Initialize response to avoid CS0165
@@ -32,7 +31,9 @@ namespace My_RequestHandler.Logics.Handlers
             using (var ms = new MemoryStream(requestBuffer))
             {
                 var request = JsonSerializer.Deserialize<TRequest>(ms);
-                //requestId = request.RequestHeader.RequestId.ToString();
+                requestId = request.ReqeustHeader.RequestId.ToString();
+
+                _logger.LogInformation("Handling request of type {RequestType} with CorrelationId {requestId}", typeof(TRequest).Name, requestId);
 
                 //if (string.IsNullOrEmpty(requestId))
                 //{

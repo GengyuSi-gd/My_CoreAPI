@@ -26,10 +26,10 @@ namespace My_CoreAPI.RabbitMQ
             public ushort? PrefetchCount;
             public bool AutomaticRecoveryEnabled;
             public int? Port { get; set; } = 5672;
-            public bool UseSsl;
-            public string CertSubject;
-            public string RequestExchangeName;
-            public string ResponseQueueName;
+            public bool UseSsl { get; set; }
+            public string CertSubject { get; set; }
+            public string RequestExchangeName { get; set; }
+            public string ResponseQueueName { get; set; }
             public ExchangeDeclaration ExchangeDeclaration { get; set; }
             public QueueDeclaration QueueDeclaration { get; set; }
             public QueueBind QueueBind { get; set; }
@@ -213,13 +213,7 @@ namespace My_CoreAPI.RabbitMQ
                 _channel = await _connection.CreateChannelAsync();
                 _channel.BasicQosAsync(0, _configuration.PrefetchCount.Value, false);
 
-                var responseQueueArgs = new Dictionary<string, object>
-            {
-                { "x-expires", 1800000 } //30 mins ttl for queue if no activity, different than auto-delete
-            };
-
-                await _channel.QueueDeclareAsync(_configuration.ResponseQueueName, _configuration.QueueDeclaration.Durable, false, false, responseQueueArgs);
-
+                //request queue
                 await _channel.ExchangeDeclareAsync(_configuration.ExchangeDeclaration.ExchangeName,
                     _configuration.ExchangeDeclaration.ExchangeType,
                     _configuration.ExchangeDeclaration.Durable,
@@ -233,6 +227,14 @@ namespace My_CoreAPI.RabbitMQ
                 await _channel.QueueBindAsync(_configuration.QueueBind.QueueName,
                     _configuration.QueueBind.Exchange,
                     _configuration.QueueBind.RoutingKey);
+
+                //response queue
+                var responseQueueArgs = new Dictionary<string, object>
+                {
+                    { "x-expires", 1800000 } //30 mins ttl for queue if no activity, different than auto-delete
+                };
+
+                await _channel.QueueDeclareAsync(_configuration.ResponseQueueName, _configuration.QueueDeclaration.Durable, false, false, responseQueueArgs);
 
                 _consumer = new AsyncEventingBasicConsumer(_channel);
                 _consumer.ReceivedAsync += OnMessageReceived;
@@ -347,6 +349,7 @@ namespace My_CoreAPI.RabbitMQ
                 properties.CorrelationId = correlationId;
                 properties.ReplyTo = _configuration.ResponseQueueName;
                 properties.Type = commandType;
+                properties.Persistent = true;
 
                 _logger.LogInformation($"Sending request of type {commandType} with correlation id {correlationId}, using queue {_configuration.RequestExchangeName}, virtual host: {_configuration.VirtualHost}");
                 _channel.BasicPublishAsync(_configuration.RequestExchangeName, commandType, mandatory: true, properties, requestBuffer);

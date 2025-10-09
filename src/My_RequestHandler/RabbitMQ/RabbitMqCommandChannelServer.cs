@@ -28,6 +28,7 @@ namespace My_RequestHandler.RabbitMQ
             public bool UseSsl;
             public string CertSubject;
             public string RequestExchangeName;
+            public string RequestQueueName;
             public string ResponseQueueName;
             public ExchangeDeclaration ExchangeDeclaration { get; set; }
             public QueueDeclaration QueueDeclaration { get; set; }
@@ -42,6 +43,7 @@ namespace My_RequestHandler.RabbitMQ
                     Password = Password,
                     VirtualHost = VirtualHost,
                     RequestExchangeName = RequestExchangeName,
+                    RequestQueueName = RequestQueueName,
                     ResponseQueueName = ResponseQueueName,
                     PrefetchCount = PrefetchCount,
                     AutomaticRecoveryEnabled = AutomaticRecoveryEnabled,
@@ -173,6 +175,7 @@ namespace My_RequestHandler.RabbitMQ
                 Password = config.UseSSL ? default(string) : config.Password,
                 Port = config.Port,
                 VirtualHost = Environment.ExpandEnvironmentVariables(config.VirtualHost ?? "/"),
+                RequestQueueName = config.RequestHandlerAllQueueName,
                 ResponseQueueName = config.RabbitMQResponseQueueName,
                 PrefetchCount = 3,
                 MaxExecutingCommands = config.MaxExecutingCommands ?? 50,
@@ -291,7 +294,7 @@ namespace My_RequestHandler.RabbitMQ
 
             _consumer = new AsyncEventingBasicConsumer(_model);
             _consumer.ReceivedAsync += OnMessageReceived;
-            await _model.BasicConsumeAsync(_configuration.ResponseQueueName, false, _consumerTag, _consumer);
+            await _model.BasicConsumeAsync(_configuration.RequestQueueName, false, _consumerTag, _consumer);
 
             _running = true;
 
@@ -473,7 +476,8 @@ namespace My_RequestHandler.RabbitMQ
 
             var responseProperties = new BasicProperties
             {
-                CorrelationId = correlationId
+                CorrelationId = correlationId,
+                Persistent = true, 
             };
 
             await _model.BasicPublishAsync("", replyTo, mandatory:false, responseProperties, responseBuffer);

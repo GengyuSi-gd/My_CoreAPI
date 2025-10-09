@@ -33,7 +33,7 @@ namespace My_RequestHandler.Logics.Handlers
             {
                 ResponseHeader = new Common.Message.Response.ResponseHeader()
                 {
-                    ResponseId = Guid.NewGuid(),
+                    ResponseId = request?.ReqeustHeader?.RequestId ?? Guid.NewGuid(),
                     StatusCode = 0,
                     SubStatusCode = 0,
                     Message = $"Weather info processed successfully {DateTime.Now}"
